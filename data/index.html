@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title></title>
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* Everything but the jumbotron gets side spacing for mobile first views */
+        .header {
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        /* Custom page header */
+        .header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        /* Make the masthead heading the same height as the navigation */
+        .header h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+            line-height: 40px;
+        }
+
+
+        /* Customize container */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 730px;
+            }
+        }
+
+        .container-narrow > hr {
+            margin: 30px 0;
+        }
+
+        /* Main marketing message and sign up button */
+        .jumbotron {
+            text-align: center;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        /* Responsive: Portrait tablets and up */
+        @media screen and (min-width: 768px) {
+            /* Remove the padding we set earlier */
+            .header{
+                padding-right: 0;
+                padding-left: 0;
+            }
+
+            /* Space out the masthead */
+            .header {
+                margin-bottom: 30px;
+            }
+
+            /* Remove the bottom border on the jumbotron for visual effect */
+            .jumbotron {
+                border-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class='container'>
+    <div class='header clearfix'>
+        <nav>
+            <ul class='nav nav-pills pull-right'>
+                <li role='presentation' class=''><a href='/update'>Update</a></li>
+            </ul>
+        </nav>
+        <h3 class='text-muted'>Nodemcu car controller</h3>
+    </div>
+    <div class='jumbotron'>
+        <h1>Car control</h1>
+
+    </div>
+    <div class='row'>
+        <div class='col-lg-6'>
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Pwm config</h3></div>
+                <div class="panel-body">
+
+                    <span>Duty Cycle limit</span>
+                    <div id='max_speed'>
+                        <div id='max_speed_custom_handle' class='ui-slider-handle custom-handle'></div>
+                    </div>
+                    <br/>
+                    <span>Duty Cycle turn limit</span>
+                    <div id='max_angle'>
+                        <div id='max_angle_custom_handle' class='ui-slider-handle custom-handle'></div>
+                    </div>
+                </div>
+                <div class="panel-footer">Panel footer</div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Response time (ms)</h3></div>
+                <div class="panel-body">
+
+                    <div class="response-time-chart"></div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class='col-lg-6'>
+
+
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Custom commands</h3></div>
+                <div class="panel-body">
+
+                    <span>Direction:</span>
+                    <label class='radio-inline'><input type='radio' name='direction' value='1' checked>Forward</label>
+                    <label class='radio-inline'><input name='direction' type='radio' value='-1'>Backward</label><br/>
+                    <span>MotorA PWM</span>
+                    <div id='enapwm'>
+                        <div id='enapwm_custom_handle' class='ui-slider-handle custom-handle'></div>
+                    </div>
+                    <br/>
+                    <span>MotorB PWM</span>
+                    <div id='enbpwm'>
+                        <div id='enbpwm_custom_handle' class='ui-slider-handle custom-handle'></div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" class="btn btn-primary" id='update_pwm'>Send</button>
+                    <button type="button" class="btn btn-alert" id='stop_btn'>Stop</button>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Duty Cycle</h3></div>
+                <div class="panel-body">
+                    <div class="test-pwm-chart"></div>
+                </div>
+                <div class="panel-footer">Panel footer</div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class='row'>
+        <div class='col-lg-12'>
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Logs</h3></div>
+                <div class="panel-body" id="logs_container">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>MILLIS</th>
+                            <th>ENA</th>
+                            <th>ENB</th>
+                            <th>RESPONSE</th>
+                            <th>DIRECTION</th>
+                            <th>STATUS</th>
+                            <th>DURATION</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="panel-footer">Panel footer</div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div> <!-- /container -->
+
+
+<script src='/js/loadjs.min.js'></script>
+<!--
+<script src='/js/jquery-3.2.1.min.js'></script>
+<script src='/js/jquery-ui.min.js'></script>
+<script src='/js/jquery.utp.min.js'></script>
+<script src='/js/chartist.min.js'></script>
+<script src='/js/moment.min.js'></script>
+<script src='/js/main.js'></script>
+-->
+
+<script>
+    var bootstrap_deps = ['/css/bootstrap.min.css', '/js/jquery-3.2.1.min.js'];
+    var css_deps = ['/css/jquery-ui.min.css', '/css/main.css'];
+    var js_deps = ['/js/jquery.utp.min.js', '/js/jquery-ui.min.js'];
+    var common_deps = ['/js/chartist.min.js', '/js/moment.min.js', '/js/jquery.usp.min.js', '/css/chartist.min.css'];
+
+    var total_progress_width = 0;
+
+    var update_progress_bar = function (percent) {
+        $('.progress-bar').css('width', percent + '%')
+    };
+
+    loadjs(bootstrap_deps, 'bootstrap_deps', {
+        success: function () { /* foo.js loaded */
+            loadjs(['/js/waitingfor.js','/js/bootstrap.min.js'], 'loading_modal', {
+                success: function (e) { /* foo.js and bar.js loaded in series */
+                    total_progress_width = 0;
+                    waitingDialog.show('Loading assets...', {
+                        onShow: function () {
+                            total_progress_width = total_progress_width + 10;
+                            update_progress_bar(total_progress_width);
+                            load_assets()
+                        }
+                    });
+                },
+                async: false,
+                before: function (path, scriptEl) {
+                    console.log("loadjs css", path, scriptEl);
+                    //timeout if failing?
+                },
+                error: function (pathsNotFound) {
+                    console.log('css pathsNotFound', pathsNotFound)
+                },
+                numRetries: 3
+            });
+        }
+    })
+
+
+    var load_assets = function () {
+
+        loadjs(css_deps, 'css_deps', {
+            success: function (e) { /* foo.js and bar.js loaded in series */
+                console.log("css loaded", e)
+                total_progress_width = total_progress_width + 30;
+                update_progress_bar(total_progress_width);
+
+            },
+            async: true,
+            error: function (pathsNotFound) {
+                console.log('css pathsNotFound', pathsNotFound)
+            },
+            numRetries: 3
+        });
+
+        loadjs(js_deps, 'js_deps', {
+            success: function (e) { /* foo.js and bar.js loaded in series */
+                console.log("jqdeps loaded")
+                total_progress_width = total_progress_width + 30;
+                update_progress_bar(total_progress_width);
+            },
+            async: false,
+            numRetries: 3,
+            error: function (e) {
+                console.log('jqdeps error', e)
+            }
+        });
+
+        loadjs(common_deps, 'common_deps', {
+            success: function (e) { /* foo.js and bar.js loaded in series */
+                console.log("common_deps loaded")
+                total_progress_width = total_progress_width + 30;
+                update_progress_bar(total_progress_width);
+
+            },
+            async: false,
+            error: function (e) {
+                console.log('common_deps error', e)
+            },
+            numRetries: 3
+
+        });
+
+
+        loadjs.ready(['js_deps', 'common_deps', 'css_deps'], {
+            success: function () {
+                console.log(['jqdeps', 'common_deps', 'css_deps'].join(','), 'loaded');
+
+                loadjs('/js/main.js', {
+                    success: function () {
+                        console.log("main.js loaded!! ")
+                        waitingDialog.hide();
+                    },
+                    error: function () {
+                        console.log("main.js error!! ")
+                    },
+                    numRetries: 3
+                });
+            },
+            error: function (depsNotFound) {
+                console.log("FIXME!! depsNotFound", depsNotFound);
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>
